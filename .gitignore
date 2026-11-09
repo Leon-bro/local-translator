@@ -1,0 +1,42 @@
+# Окружения и зависимости
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+frontend/node_modules/
+
+# Сборка: фронтенд собирается в backend/dist и встраивается в exe
+backend/dist/*
+!backend/dist/.gitkeep
+*.exe
+*.exe~
+
+# Книги и результаты
+in/
+out/
+work/
+test-fragment/
+gloss/
+*.pdf
+*.xlsx
+
+# Состояние и журналы
+state*.db
+state*.db-*
+logs/
+
+# Личный контекст перевода (глоссарии, подсказки, пол персонажей, группы книг)
+glossary.tsv
+hints.tsv
+characters.tsv
+plain_names.txt
+groups.json
+context/
+backup-*/
+
+# IDE и ОС
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

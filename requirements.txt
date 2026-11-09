@@ -1,0 +1,7 @@
+pymupdf
+jinja2
+pyyaml
+playwright
+requests
+pytest
+openpyxl

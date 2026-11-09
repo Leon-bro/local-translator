@@ -1,0 +1,69 @@
+# Языки: name используется в промпте, code — в заголовке промпта и в <html lang>.
+source_lang: {name: English, code: en}
+target_lang: {name: Russian, code: ru}
+
+paths:
+  input_dir: in
+  output_dir: out
+  work_dir: work
+  db: state.db
+  glossary: glossary.tsv
+  hints: hints.tsv         # советы модели без обязательной проверки
+  plain_names: plain_names.txt  # слова, похожие на имена, которые нужно переводить обычным образом
+  characters: characters.tsv  # пол персонажей, выбранный вручную
+  log_file: logs/translator.log
+
+llm:
+  host: http://localhost:11434
+  default_mode: balanced  # режим для новых книг
+  # Варианты обработки: режим выбирается для каждой книги. Одна модель в обоих полях = второго прохода нет.
+  modes:
+    - id: fast
+      label: Быстрый
+      description: Только 4B, замечания остаются для ручной проверки. Около 20 с на страницу.
+      pass1_model: translategemma:4b
+      pass2_model: translategemma:4b
+    - id: balanced
+      label: Сбалансированный
+      description: 4B, а куски с замечаниями переделывает 12B. От 20 с на страницу.
+      pass1_model: translategemma:4b
+      pass2_model: translategemma:12b
+    - id: quality
+      label: Качественный
+      description: Вся книга через 12B, смысловых ошибок обычно меньше. Около 1,5 мин на страницу.
+      pass1_model: translategemma:12b
+      pass2_model: translategemma:12b
+  keep_names: true        # имена не из глоссария остаются по-английски
+  prompt_ver: 2           # увеличить после правки промпта: перевод повторится только для него
+  temperature: 0.1
+  max_tokens_ratio: 2.5   # num_predict = ratio × оценка токенов исходника (защита от зацикливания)
+  min_max_tokens: 64
+  num_ctx: 4096
+  keep_alive: 10m
+  request_timeout_s: 900  # 12B частично работает на CPU
+  retries: 2
+
+chunk:
+  max_tokens: 400         # блоки длиннее режутся по предложениям
+  context_chars: 600      # сколько последних символов предыдущего перевода идёт в промпт
+
+extract:
+  margin_ratio: 0.09      # доля высоты страницы сверху и снизу, где ищутся колонтитулы
+  min_image_pt: 6         # картинки меньше этого размера считаются украшением
+
+validate:
+  min_length_ratio: 0.7   # длина перевода / длина исходника
+  max_length_ratio: 2.0
+  short_block_chars: 40   # для блоков короче этого длина не проверяется
+  max_latin_share: 0.08   # доля латиницы вне глоссария
+  ngram_size: 4
+  ngram_max_repeats: 3
+
+render:
+  font_family: "Georgia, 'Times New Roman', serif"
+  font_size_pt: 13
+  line_height: 1.5
+  paragraph_spacing_em: 0.5  # отступ между абзацами
+  text_indent_em: 0          # красная строка; 0 = абзацы разделены только отступом, как в исходнике
+  page_size: auto         # auto = как у исходного PDF, либо A4, Letter
+  margin_mm: 20

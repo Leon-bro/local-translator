@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  @page {
+    margin: {{ margin_mm }}mm {{ margin_mm }}mm {{ margin_mm + 4 }}mm;
+    @bottom-center { content: counter(page); font: 9pt {{ font_family | safe }}; color: #555; }
+  }
+  /* Иллюстрация на всю страницу печатается в обрез, без полей и номера, как в исходнике. */
+  @page illustration { margin: 0; @bottom-center { content: none; } }
+  body { font-family: {{ font_family | safe }}; font-size: {{ font_size_pt }}pt; line-height: {{ line_height }}; color: #000; margin: 0; }
+  p { margin: 0 0 {{ paragraph_spacing_em }}em; text-align: justify; text-indent: {{ text_indent_em }}em; hyphens: auto; orphans: 2; widows: 2; }
+  h1, h2, h3 { font-weight: bold; line-height: 1.25; text-align: center; break-after: avoid; margin: 1.8em 0 1em; }
+  h1 { font-size: 1.5em; } h2 { font-size: 1.3em; } h3 { font-size: 1.12em; }
+  h1 + p, h2 + p, h3 + p, figure + p { text-indent: 0; }
+  p.section { margin-top: 1.4em; }
+  figure { margin: 1em 0; text-align: center; break-inside: avoid; }
+  figure img { max-width: 100%; height: auto; }
+  figure.full { page: illustration; break-before: page; break-after: page; margin: 0;
+    width: {{ page[0] }}pt; height: {{ page[1] - 1 }}pt; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  figure.full img { width: 100%; height: 100%; max-width: none; object-fit: fill; }  /* растянута, как в исходнике */
+  figcaption, p.caption { font-size: .88em; text-align: center; text-indent: 0; margin: .4em 0 1em; }
+</style>
+</head>
+<body>
+{%- for b in blocks %}
+{%- if b.type == "image" and b.full_page %}
+<figure class="full"><img src="{{ b.asset }}" alt=""></figure>
+{%- elif b.type == "image" %}
+<figure><img src="{{ b.asset }}" alt=""{% if b.width_pt %} style="width: {{ b.width_pt }}pt"{% endif %}></figure>
+{%- elif b.type == "heading" %}
+<h{{ b.level or 2 }}>{{ b.text }}</h{{ b.level or 2 }}>
+{%- elif b.type == "caption" %}
+<p class="caption">{{ b.text }}</p>
+{%- else %}
+<p{% if b.section_break %} class="section"{% endif %}>{{ b.text }}</p>
+{%- endif %}
+{%- endfor %}
+</body>
+</html>
